@@ -1,0 +1,139 @@
+Disassembly Listing for lab8c
+Generated From:
+C:/Users/Aluno/Desktop/felipeBernardo/lab8c.X/dist/default/debug/lab8c.X.debug.elf
+13/05/2026 09:37:24
+
+---  C:/Users/Aluno/Desktop/felipeBernardo/lab8c.X/main.c  ----------------------------------------------
+1:             #pragma config FOSC = HS        // Oscillator Selection bits (HS oscillator: High-speed crystal/resonator on RA6/OSC2/CLKOUT and RA7/OSC1/CLKIN)
+2:             #pragma config WDTE = OFF       // Watchdog Timer Enable bit (WDT disabled and can be enabled by SWDTEN bit of the WDTCON register)
+3:             #pragma config PWRTE = OFF      // Power-up Timer Enable bit (PWRT disabled)
+4:             #pragma config MCLRE = ON       // RE3/MCLR pin function select bit (RE3/MCLR pin function is MCLR)
+5:             #pragma config CP = OFF         // Code Protection bit (Program memory code protection is disabled)
+6:             #pragma config CPD = OFF        // Data Code Protection bit (Data memory code protection is disabled)
+7:             #pragma config BOREN = ON       // Brown Out Reset Selection bits (BOR enabled)
+8:             #pragma config IESO = ON        // Internal External Switchover bit (Internal/External Switchover mode is enabled)
+9:             #pragma config FCMEN = ON       // Fail-Safe Clock Monitor Enabled bit (Fail-Safe Clock Monitor is enabled)
+10:            #pragma config LVP = OFF        // Low Voltage Programming Enable bit (RB3 pin has digital I/O, HV on MCLR must be used for programming)
+11:            
+12:            // CONFIG2
+13:            #pragma config BOR4V = BOR40V   // Brown-out Reset Selection bit (Brown-out Reset set to 4.0V)
+14:            #pragma config WRT = OFF        // Flash Program Memory Self Write Enable bits (Write protection off)
+15:            
+16:            // #pragma config statements should precede project file includes.
+17:            // Use project enums instead of #define for ON and OFF.
+18:            
+19:            #include <xc.h>
+20:            #include <stdint.h>
+21:            #define _XTAL_FREQ 800000
+22:            
+23:            volatile uint8_t contador = 0;
+24:            
+25:            void __interrupt() ISR(void)
+0004  00FE     MOVWF btemp
+26:            {
+27:                if(INTF)
+07BB  1C8B     BTFSS INTCON, 0x1
+07BC  2FBE     GOTO 0x7BE
+07BD  2FBF     GOTO 0x7BF
+07BE  2FC4     GOTO 0x7C4
+28:                {
+29:                    INTF = 0;
+07BF  108B     BCF INTCON, 0x1
+30:                    contador +=1;
+07C0  3001     MOVLW 0x1
+07C1  00FF     MOVWF btemp
+07C2  087F     MOVF btemp, W
+07C3  07F6     ADDWF contador, F
+31:                }
+32:                
+33:            }
+07C4  0873     MOVF 0x73, W
+07C4  0873     MOVF 0x73, W
+07C4  0873     MOVF 0x73, W
+07C4  0873     MOVF 0x73, W
+07C4  0873     MOVF 0x73, W
+07C4  0873     MOVF 0x73, W
+07C4  0873     MOVF 0x73, W
+07C4  0873     MOVF 0x73, W
+34:            
+35:            
+36:            void Setup(void)
+37:            {
+38:                TRISB0 = 1;
+07CD  1683     BSF STATUS, 0x5
+07CE  1303     BCF STATUS, 0x6
+07CF  1406     BSF TRISB, 0x0
+39:                TRISB1 = 0;
+07D0  1086     BCF TRISB, 0x1
+40:                ANS12 = 0;
+07D1  1683     BSF STATUS, 0x5
+07D2  1703     BSF STATUS, 0x6
+07D3  1209     BCF ANSELH, 0x4
+41:                ANS10 = 0; 
+07D4  1109     BCF ANSELH, 0x2
+42:                INTEDG = 1 ;
+07D5  1683     BSF STATUS, 0x5
+07D6  1303     BCF STATUS, 0x6
+07D7  1701     BSF OPTION_REG, 0x6
+43:                PORTD =0X00;
+07D8  1283     BCF STATUS, 0x5
+07D9  1303     BCF STATUS, 0x6
+07DA  0188     CLRF PORTD
+44:                RB1 = 0;
+07DB  1086     BCF PORTB, 0x1
+45:                TRISD = 0X00; // RD0-RD7 COMO SAIDA DIGITAL
+07DC  1683     BSF STATUS, 0x5
+07DD  1303     BCF STATUS, 0x6
+07DE  0188     CLRF TRISD
+46:                
+47:            
+48:                INTF = 0;
+07DF  108B     BCF INTCON, 0x1
+49:                INTE = 0;
+07E0  120B     BCF INTCON, 0x4
+50:                GIE = 1;
+07E1  178B     BSF INTCON, 0x7
+51:            }
+07E2  0008     RETURN
+52:            
+53:            
+54:            
+55:            void main(void) {
+56:                
+57:                Setup();
+07E3  120A     BCF PCLATH, 0x4
+07E4  118A     BCF PCLATH, 0x3
+07E5  27CD     CALL 0x7CD
+07E6  120A     BCF PCLATH, 0x4
+07E7  118A     BCF PCLATH, 0x3
+58:                
+59:                while(1)
+60:                {
+61:                    RB1 = ~RB1;
+07E8  3002     MOVLW 0x2
+07E9  1283     BCF STATUS, 0x5
+07EA  1303     BCF STATUS, 0x6
+07EB  0686     XORWF PORTB, F
+62:                    PORTD = contador;
+07EC  0876     MOVF contador, W
+07ED  0088     MOVWF PORTD
+63:                    __delay_ms(500);
+07EE  3082     MOVLW 0x82
+07EF  00F5     MOVWF 0x75
+07F0  30DD     MOVLW 0xDD
+07F1  00F4     MOVWF 0x74
+07F2  0BF4     DECFSZ 0x74, F
+07F3  2FF2     GOTO 0x7F2
+07F4  0BF5     DECFSZ 0x75, F
+07F5  2FF2     GOTO 0x7F2
+07F6  2FF7     GOTO 0x7F7
+07F7  2FE8     GOTO 0x7E8
+07F8  120A     BCF PCLATH, 0x4
+07F9  118A     BCF PCLATH, 0x3
+64:                }
+65:                return;
+66:            }
+---  C:/Users/Aluno/AppData/Local/Temp/xcAsb4o/driver_tmp_1.s  ------------------------------------------
+07FB  01F6     CLRF contador
+07FC  0183     CLRF STATUS
+07FD  120A     BCF PCLATH, 0x4
